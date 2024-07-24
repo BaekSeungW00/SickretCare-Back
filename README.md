@@ -11,5 +11,8 @@
   * refactor	코드 리팩토링에 대한 커밋
   * test	테스트 코드 수정에 대한 커밋
   * perf	성능 개선에 대한 커밋
-
-ex) feat: 
+* subject
+  * 변경한 클래스, 메서드와 변경된 내용에 대한 간략한 요약
+<br>
+ex) feat: User 클래스에 nickname 속성 추가<br>
+ex) fix: LoginView 메서드 로직 수정
