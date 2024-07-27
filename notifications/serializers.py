@@ -11,5 +11,5 @@ class TimerSerializer(serializers.ModelSerializer):
         
 class PushSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Push
+        model = Alarm
         fields = '__all__'
