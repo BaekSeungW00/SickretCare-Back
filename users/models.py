@@ -24,7 +24,3 @@ class User(AbstractUser):
     fcm_token = models.CharField(null=True, max_length=200)
 
     objects = UserManager()
-    
-class EmailCode(models.Model):
-    code = models.CharField(max_length=6)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='email_code')

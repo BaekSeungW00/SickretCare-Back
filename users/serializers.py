@@ -10,3 +10,12 @@ class UserSerializer(serializers.ModelSerializer):
             'fcm_token': {'required': False},
         }
         
+    def create(self, validated_data):
+        user = User.objects.create_user(
+            email=validated_data['email'],
+            password=validated_data['password'],
+            username=validated_data['username'],
+            nickname=validated_data['nickname']
+        )
+        return user
+        
