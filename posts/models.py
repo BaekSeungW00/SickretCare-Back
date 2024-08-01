@@ -8,6 +8,7 @@ class Category(models.Model):
 class Commodity(models.Model):
     link  = models.CharField(max_length=300)
     price = models.IntegerField(null=True)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='commodities')
     
 class Post(models.Model):
     title = models.CharField(max_length=30)

@@ -9,10 +9,11 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = ['name']
 
 class CommoditySerializer(serializers.ModelSerializer):
+    category = CategorySerializer(required=False)
 
     class Meta:
         model = Commodity
-        fields = ['link', 'price']
+        fields = ['id', 'link', 'price', 'category']
 
 
 class PostSerializer(serializers.ModelSerializer):
