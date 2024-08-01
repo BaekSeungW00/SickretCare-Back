@@ -38,6 +38,21 @@ class AlarmListCreateAPIView(generics.ListCreateAPIView):
         alarms_serializers = AlarmSerializer(alarms, many=True)
         return Response(data=alarms_serializers.data)
     
+    def create(self, request):
+        org_time = str(request.data.get('time'))
+        hours = int(org_time[:2])
+        minutes = int(org_time[2:])
+        prcd_time = time(hours, minutes)
+        data = {
+            'title': request.data.get('title'),
+            'time': prcd_time
+        }
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+    
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
         alarm = Alarm.objects.get(id=serializer.data.get('id'))
@@ -59,3 +74,23 @@ class AlarmRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = AlarmSerializer
     lookup_field = 'id'
     lookup_url_kwarg = 'alarm_id'
+    
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        org_time = str(request.data.get('time'))
+        hours = int(org_time[:2])
+        minutes = int(org_time[2:])
+        prcd_time = time(hours, minutes)
+        data = {
+            'title': request.data.get('title'),
+            'time': prcd_time
+        }
+        serializer = self.get_serializer(instance, data=data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        if getattr(instance, '_prefetched_objects_cache', None):
+            instance._prefetched_objects_cache = {}
+
+        return Response(serializer.data)
