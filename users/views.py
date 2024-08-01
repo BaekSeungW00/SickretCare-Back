@@ -99,19 +99,20 @@ def login_api_view(request):
     if not check_password(password, user.password):
         return Response({'error': '비밀번호가 맞지 않습니다. '}, status=status.HTTP_401_UNAUTHORIZED)
     
-    token = RefreshToken.for_user(user)
+    refresh_token = RefreshToken.for_user(user)
+    access_token = refresh_token.access_token
     serializer = UserSerializer(user)
     
     response = Response(
         status=status.HTTP_200_OK,
         data={
-            "refresh_token": str(token),
-            "access_token": str(token.access_token), 
+            "refresh_token": str(refresh_token),
+            "access_token": str(access_token), 
             "user": serializer.data,
         }
     )
-    response.set_cookie('access_token', str(token.access_token), httponly=True, samesite='Lax')
-    response.set_cookie('refresh_token', str(token), httponly=True, samesite='Lax')
+    response.set_cookie('access_token', str(access_token), httponly=True)
+    response.set_cookie('refresh_token', str(refresh_token), httponly=True)
     return response
 
 # 자동 로그인 (Refresh Token 확인하여 Access Token 발급)
@@ -123,8 +124,9 @@ def refresh_api_view(request):
     try:
         refresh = RefreshToken(refresh_token)
         new_access_token = refresh.access_token
-        response = Response({'detail': 'Token refreshed'}, status=status.HTTP_200_OK)
+        response = Response({'refresh_token': str(refresh_token), 'access_token': str(new_access_token)}, status=status.HTTP_200_OK)
         response.set_cookie('access_token', str(new_access_token), httponly=True)
+        response.set_cookie('refresh_token', str(refresh), httponly=True)
         return response
     except Exception as e:
         return Response({'error': 'Refresh token이 올바르지 않습니다. '}, status=status.HTTP_401_UNAUTHORIZED)    
