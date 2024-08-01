@@ -1,7 +1,7 @@
 import string
 import random
 from rest_framework import generics, permissions, status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from django.contrib.auth.hashers import check_password, make_password
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -18,6 +18,11 @@ class UserCreateAPIView(generics.CreateAPIView):
     def create(self, request):
         if request.data.get('password1') != request.data.get('password2'):
             return Response({'error': '두 비밀번호가 일치하지 않습니다. '}, status=status.HTTP_400_BAD_REQUEST)
+        if User.objects.filter(email=request.data.get('email')).exists():
+            return Response({'error': '이메일이 중복됩니다. '}, status=status.HTTP_409_CONFLICT)
+        if User.objects.filter(nickname=request.data.get('nickname')).exists():
+            return Response({'error': '닉네임이 중복됩니다. '}, status=status.HTTP_409_CONFLICT)
+        
         data = {
             'email': request.data.get('email'),
             'password': request.data.get('password1'),
@@ -39,6 +44,7 @@ class UserCreateAPIView(generics.CreateAPIView):
 
 # 회원 정보 조회 및 수정, 회원 탈퇴
 @api_view(['GET', 'PUT', 'DELETE'])
+@permission_classes([permissions.IsAuthenticated])
 def user_retrieve_update_destroy_api_view(request):
     user = request.user
     
@@ -84,7 +90,11 @@ def user_retrieve_update_destroy_api_view(request):
             return Response({'error': '비밀번호를 모두 입력하세요. '}, status=status.HTTP_400_BAD_REQUEST)
         
         user.delete()
-        return Response({'deleted': '회원 탈퇴 완료'}, status=status.HTTP_204_NO_CONTENT)
+        response = Response({'deleted': '회원 탈퇴 완료'}, status=status.HTTP_204_NO_CONTENT)
+        response.delete_cookie('refresh_token')
+        response.delete_cookie('access_token')
+        return response
+        
         
 # 로그인
 @api_view(['POST'])
@@ -133,17 +143,15 @@ def refresh_api_view(request):
 
 # 로그아웃
 @api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
 def logout_api_view(request):
     response = Response({'detail': '로그아웃에 성공했습니다. '}, status=status.HTTP_200_OK)
     response.delete_cookie('access_token')
     response.delete_cookie('refresh_token')
     return response
 
-# 비밀번호 찾기
-'''
-!!! 이메일 계정 만들고 이메일 설정 마무리 해야함 !!!
-'''
-from config.settings import EMAIL_HOST
+# 임시 비밀번호 발급
+from config.settings import EMAIL_HOST_USER
 
 @api_view(['POST'])
 def reset_pw_api_view(request):
@@ -151,15 +159,15 @@ def reset_pw_api_view(request):
     try:
         user = User.objects.get(email=email)
     except User.DoesNotExist:
-        return Response({'error': '해당 이메일로 가입된 계정이 없습니다. '}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'error': '해당 이메일로 가입된 계정이 없습니다. '}, status=status.HTTP_404_NOT_FOUND)
 
     characters = string.digits + string.ascii_lowercase
     code = ''.join(random.choices(characters, k=6))
     
     subject = "SickretCare 임시 비밀번호 알림"
     message = f'임시 비밀번호는 <{code}> 입니다. 로그인 후 마이페이지에서 비밀번호를 수정해주세요. '
-    from_email = EMAIL_HOST
-    recipient_list = [email]
+    from_email = EMAIL_HOST_USER
+    recipient_list = ['ph1losophe@naver.com']
 
     try:
         send_mail(

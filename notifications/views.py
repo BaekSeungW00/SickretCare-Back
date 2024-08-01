@@ -1,8 +1,8 @@
 from datetime import datetime, timedelta, time
 from django.utils import timezone
-from rest_framework import generics, status
+from rest_framework import generics, status, permissions
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 
 from .models import *
 from .serializers import *
@@ -11,6 +11,7 @@ from .serializers import *
 class TimerRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
     queryset = Timer.objects.all()
     serializer_class = TimerSerializer
+    permission_classes = permissions.IsAuthenticated
     
     def get_object(self):
         timer = Timer.objects.get(user=self.request.user)
@@ -21,6 +22,7 @@ class TimerRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
     
 # 타이머 실행(타이머 푸쉬 객체 생성)
 @api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
 def start_timer(request):
     timer = Timer.objects.get(user=request.user)
     timer_push = TimerPush.objects.create(title='Sickret Care 타이머 알람', timer=timer)
@@ -31,6 +33,7 @@ def start_timer(request):
 class AlarmListCreateAPIView(generics.ListCreateAPIView):
     queryset = Alarm.objects.all()
     serializer_class = AlarmSerializer
+    permission_classes = permissions.IsAuthenticated
     
     def list(self, request):
         user = request.user
@@ -74,6 +77,7 @@ class AlarmRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = AlarmSerializer
     lookup_field = 'id'
     lookup_url_kwarg = 'alarm_id'
+    permission_classes = permissions.IsAuthenticated
     
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
