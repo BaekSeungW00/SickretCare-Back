@@ -60,8 +60,6 @@ from datetime import timedelta
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=180),
-    "AUTH_HEADER_TYPES": ("Bearer",),
-    "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
 }
 
 MIDDLEWARE = [
@@ -160,6 +158,18 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = '이메일 호스트 주소'
 EMAIL_HOST_PASSWORD = '이메일 호스트 계정 비밀번호'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+
+# Redis settings
+CELERY_BROKER_URL = 'redis://127.0.0.1:6379'
+CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379'
+
+CELERY_BEAT_SCHEDULE = {
+    'check-and-send-alarms-every-minute': {
+        'task': 'alarms.tasks.check_and_send_push_alarms',
+        'schedule': 60.0,
+    },
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
