@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from posts.models import Post, Category, Comment, Commodity
+from posts.models import Post, Category, Comment, Commodity, Like
 from users.serializers import UserSerializer
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -32,7 +32,7 @@ class PostSerializer(serializers.ModelSerializer):
     
     # 게시물의 좋아요 개수
     def get_likes_num(self, obj):
-        return obj.like_users.count()
+        return Like.objects.filter(post=obj).count()
 
 class CommentSerializer(serializers.ModelSerializer):
     author = UserSerializer(required=False)
@@ -40,4 +40,12 @@ class CommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ['id', 'content', 'created_at', 'author']
+        fields = ['id', 'content', 'created_at', 'author', 'post']
+
+class LikeSerializer(serializers.ModelSerializer):
+    user = UserSerializer(required=False)
+    post = PostSerializer(required=False)
+
+    class Meta:
+        model = Like
+        fields = '__all__'
