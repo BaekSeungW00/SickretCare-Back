@@ -15,7 +15,7 @@ def check_and_send_timer_pushes():
     now = timezone.now()
     timer_pushes = TimerPush.objects.all()
     for timer_push in timer_pushes:
-        if timer_push.created_at + time(minute=timer_push.timer.interval) <= now:
+        if timer_push.created_at + timedelta(minutes=timer_push.timer.interval) <= now:
             send_timer_push(timer_push)
             timer_push.delete()
 

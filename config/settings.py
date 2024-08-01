@@ -179,8 +179,12 @@ CELERY_BROKER_URL = 'redis://127.0.0.1:6379'
 CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379'
 
 CELERY_BEAT_SCHEDULE = {
-    'check-and-send-alarms-every-minute': {
-        'task': 'alarms.tasks.check_and_send_push_alarms',
+    'check-and-send-timer-pushes-every-minute': {
+        'task': 'notifications.tasks.check_and_send_timer_pushes',
+        'schedule': 60.0,
+    },
+    'check-and-send-alarm-pushes-every-minute': {
+        'task': 'notifications.tasks.check_and_send_alarm_pushes',
         'schedule': 60.0,
     },
 }
