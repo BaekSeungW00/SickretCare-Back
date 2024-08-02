@@ -6,9 +6,12 @@ class Category(models.Model):
     name = models.CharField(max_length=15)
     
 class Commodity(models.Model):
+    title = models.CharField(max_length=30, null=True)
     link  = models.CharField(max_length=300)
     price = models.IntegerField(null=True)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='commodities')
+    stars = models.CharField(max_length=5, null=True)
+    image_link = models.CharField(max_length=500, null=True)
+    category = models.ForeignKey(Category, null=True, on_delete=models.CASCADE, related_name='commodities')
     
 class Post(models.Model):
     title = models.CharField(max_length=30)

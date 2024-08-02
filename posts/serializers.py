@@ -13,7 +13,7 @@ class CommoditySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Commodity
-        fields = ['id', 'link', 'price', 'category']
+        fields = '__all__'
 
 
 class PostSerializer(serializers.ModelSerializer):
