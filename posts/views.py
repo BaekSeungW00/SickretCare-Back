@@ -41,6 +41,16 @@ class PostRetrieveDeleteAPIView(RetrieveDestroyAPIView):
     permission_classes = [IsGet | IsOwner]
     lookup_field = 'id'
 
+    def retrieve(self, request, *args, **kwargs):
+        instance = get_object_or_404(Post, id=kwargs.get('id'))
+        serializer = self.get_serializer(instance)
+        comments = Comment.objects.filter(post=instance)
+        comments_serializer = CommentSerializer(comments, many=True)
+        data = {
+            'post': serializer.data,
+            'comments': comments_serializer.data
+        }
+        return Response(data)
 
 # 게시물 생성 POST
 class PostUploadAPIView(CreateAPIView):
@@ -109,17 +119,6 @@ class MyPostAPIView(ListAPIView):
 
         serializer = self.get_serializer(post_queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
-
-# 댓글 조회 GET
-class CommentListAPIView(ListAPIView):
-    serializer_class = CommentSerializer
-    permission_classes = [AllowAny]
-    
-    def get_queryset(self):
-        post_id = self.kwargs.get('post_id')
-        return Comment.objects.filter(post__id=post_id)
-
 
 # 댓글 생성 POST
 class CommentUploadAPIView(CreateAPIView):
