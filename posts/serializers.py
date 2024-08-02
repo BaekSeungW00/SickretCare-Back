@@ -37,7 +37,6 @@ class PostSerializer(serializers.ModelSerializer):
 
 class CommentSerializer(serializers.ModelSerializer):
     author = UserSerializer(required=False)
-    post = PostSerializer(required=False)
 
     class Meta:
         model = Comment

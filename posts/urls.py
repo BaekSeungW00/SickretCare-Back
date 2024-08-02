@@ -7,7 +7,6 @@ urlpatterns = [
     path('upload/', views.PostUploadAPIView.as_view(), name='post-upload'),
     path('liked/', views.LikedPostAPIView.as_view(), name='liked-post'),
     path('mypost/', views.MyPostAPIView.as_view(), name='my-post'),
-    path('comment/list/<int:post_id>/', views.CommentListAPIView.as_view(), name='comment-list'),
     path('comment/upload/<int:post_id>/', views.CommentUploadAPIView.as_view(), name='comment-upload'),
     path('comment/delete/<int:comment_id>/', views.CommentDeleteAPIView.as_view(), name='comment-delete'),
     path('like/<int:post_id>/', views.post_like_api_view, name='post-like'),
