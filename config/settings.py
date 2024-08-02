@@ -140,8 +140,12 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'database-sickretcare',
+        'USER': 'admin',
+        'PASSWORD' : 'asdfasdf',
+        'HOST' : 'database-sickretcare.cl8sss2aeglb.ap-northeast-2.rds.amazonaws.com',
+        'PORT' : '3306',
     }
 }
 
