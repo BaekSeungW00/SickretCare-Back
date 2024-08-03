@@ -62,7 +62,8 @@ INSTALLED_APPS = [
 # JWT settings
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'users.authentications.CookieBasedJWTAuthentication'
+        'rest_framework_simplejwt.authentication.JWTAuthentication'
+        # 'users.authentications.CookieBasedJWTAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES' : [
         'rest_framework.permissions.AllowAny',
