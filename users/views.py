@@ -95,10 +95,7 @@ def user_retrieve_update_destroy_api_view(request):
             return Response({'error': '비밀번호를 모두 입력하세요. '}, status=status.HTTP_400_BAD_REQUEST)
         
         user.delete()
-        response = Response({'deleted': '회원 탈퇴 완료'}, status=status.HTTP_204_NO_CONTENT)
-        response.delete_cookie('refresh_token')
-        response.delete_cookie('access_token')
-        return response
+        return Response({'deleted': '회원 탈퇴 완료'}, status=status.HTTP_204_NO_CONTENT)
         
         
 # 로그인
