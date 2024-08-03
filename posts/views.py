@@ -188,4 +188,37 @@ class CommoditySearchAPIView(ListAPIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+# 상품 등록 POST
+class CommodityUploadAPIView(CreateAPIView):
+    queryset = Commodity.objects.all()
+    serializer_class = CommoditySerializer
+    permission_classes = [AllowAny]
 
+    def create(self, request, *args, **kwargs):
+        category_name = request.data.get('category_name', None)
+        title = request.data.get('title')
+        link = request.data.get('link')
+        price = request.data.get('price')
+        stars = request.data.get('stars')
+        image_link = request.data.get('image_link')
+
+        if not category_name or category_name not in ['치질', '변비', '과민성대장증후군']:
+            return Response({"error": "Invalid or missing category name."}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            category = Category.objects.get(name=category_name)
+        except Category.DoesNotExist:
+            return Response({"error": "Category does not exist."}, status=status.HTTP_404_NOT_FOUND)
+
+        commodity = Commodity.objects.create(
+            title=title,
+            link=link,
+            price=price,
+            stars=stars,
+            image_link=image_link,
+            category=category
+        )
+
+        serializer = CommoditySerializer(commodity)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+    
