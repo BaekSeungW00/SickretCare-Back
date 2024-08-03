@@ -10,8 +10,6 @@ from .models import *
 from .serializers import *
 from notifications.models import Timer
 
-LOCAL_CLIENT_DOMAIN = "http://127.0.0.1:5500"
-PUBLIC_CLIENT_DOMAIN = ""
 ACCESS_COOKIE_AGE = 15 * 60
 REFRESH_COOKIE_AGE = 3 * 24 * 60 * 60
 
@@ -126,8 +124,8 @@ def login_api_view(request):
             "user": serializer.data,
         }
     )
-    response.set_cookie('access_token', str(access_token), httponly=True, samesite='Lax', domain=LOCAL_CLIENT_DOMAIN, path='/', max_age=ACCESS_COOKIE_AGE)
-    response.set_cookie('refresh_token', str(refresh_token), httponly=True, samesite='Lax', domain=LOCAL_CLIENT_DOMAIN, path='/', max_age=REFRESH_COOKIE_AGE)
+    response.set_cookie('access_token', str(access_token), samesite='Lax', httponly=True, max_age=ACCESS_COOKIE_AGE)
+    response.set_cookie('refresh_token', str(refresh_token), samesite='Lax', httponly=True, max_age=REFRESH_COOKIE_AGE)
     return response
 
 # 자동 로그인 (Refresh Token 확인하여 Access Token 발급)
@@ -140,8 +138,8 @@ def refresh_api_view(request):
         refresh = RefreshToken(refresh_token)
         new_access_token = refresh.access_token
         response = Response({'refresh_token': str(refresh_token), 'access_token': str(new_access_token)}, status=status.HTTP_200_OK)
-        response.set_cookie('access_token', str(new_access_token), httponly=True, samesite='Lax', domain=LOCAL_CLIENT_DOMAIN, path='/', max_age=ACCESS_COOKIE_AGE)
-        response.set_cookie('refresh_token', str(refresh), httponly=True, samesite='Lax', domain=LOCAL_CLIENT_DOMAIN, path='/', max_age=REFRESH_COOKIE_AGE)
+        response.set_cookie('access_token', str(new_access_token), httponly=True, samesite='Lax', max_age=ACCESS_COOKIE_AGE)
+        response.set_cookie('refresh_token', str(refresh), httponly=True, samesite='Lax', max_age=REFRESH_COOKIE_AGE)
         return response
     except Exception as e:
         return Response({'error': 'Refresh token이 올바르지 않습니다. '}, status=status.HTTP_401_UNAUTHORIZED)    
