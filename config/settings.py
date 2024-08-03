@@ -106,6 +106,7 @@ CORS_ALLOW_HEADERS = [ # 허용할 헤더
     "user-agent",
     "x-csrftoken",
     "x-requested-with",
+    "Set-Cookie",
 ]
 CORS_ALLOW_CREDENTIALS = True
 
