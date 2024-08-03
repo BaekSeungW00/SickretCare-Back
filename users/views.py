@@ -1,5 +1,7 @@
 import string
 import random
+import jwt
+from config.settings import SECRET_KEY
 from rest_framework import generics, permissions, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
@@ -156,19 +158,43 @@ def login_api_view(request):
 @api_view(['POST'])
 def refresh_api_view(request):
     refresh_token = request.data.get('refresh_token')
-    try:
-        refresh = RefreshToken(refresh_token)
-        new_access_token = refresh.access_token
-        return Response(
-            status=status.HTTP_200_OK,
-            data={
-                "refresh_token": str(refresh_token),
-                "access_token": str(new_access_token)
-            }
-        )
-    except Exception as e:
-        return Response({'error': 'Refresh token이 올바르지 않습니다. 다시 로그인 하세요. '}, status=status.HTTP_401_UNAUTHORIZED)
+    if not refresh_token:
+        cookie_refresh_token = request.COOKIES.get('refresh_token')
+    if not cookie_refresh_token:
+        return Response({'error': 'Refresh token이 전달되지 않았습니다. '}, status=status.HTTP_401_UNAUTHORIZED)
+    refresh_token = cookie_refresh_token
     
+    refresh = RefreshToken(refresh_token)
+    
+    try:
+        user_id = get_user_id_from_refresh_token(str(refresh))
+        user = User.objects.get(id=user_id)
+    except jwt.ExpiredSignatureError:
+        return Response({'error': '만료된 Refresh token 입니다. '}, status=status.HTTP_401_UNAUTHORIZED)
+    except jwt.InvalidTokenError:
+        return Response({'error': '잘못된 Refresh token 입니다. '}, status=status.HTTP_401_UNAUTHORIZED)
+    except User.DoesNotExist:
+        return Response({'error': '존재하지 않는 사용자의 Refresh token 입니다. '}, status=status.HTTP_401_UNAUTHORIZED)
+
+    
+    new_access_token = refresh.access_token
+    return Response(
+        status=status.HTTP_200_OK,
+        data={
+            "refresh_token": str(refresh_token),
+            "access_token": str(new_access_token),
+            "user": UserSerializer(user).data
+        }
+    )
+
+# JWT 분석
+def get_user_id_from_refresh_token(token):
+    secret_key = SECRET_KEY
+    algorithm = 'HS256'
+    payload = jwt.decode(token, secret_key, algorithms=[algorithm])
+    user_id = payload.get('user_id')
+    return user_id
+
     # refresh_token = request.COOKIES.get('refresh_token')
     # if refresh_token is None:
     #     return Response({'error': 'Refresh Token을 찾을 수 없습니다. '}, status=status.HTTP_401_UNAUTHORIZED)

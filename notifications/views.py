@@ -11,7 +11,7 @@ from .serializers import *
 class TimerRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
     queryset = Timer.objects.all()
     serializer_class = TimerSerializer
-    permission_classes = permissions.IsAuthenticated
+    permission_classes = [permissions.IsAuthenticated]
     
     def get_object(self):
         timer = Timer.objects.get(user=self.request.user)
@@ -33,7 +33,7 @@ def start_timer(request):
 class AlarmListCreateAPIView(generics.ListCreateAPIView):
     queryset = Alarm.objects.all()
     serializer_class = AlarmSerializer
-    permission_classes = permissions.IsAuthenticated
+    permission_classes = [permissions.IsAuthenticated]
     
     def list(self, request):
         user = request.user
@@ -77,7 +77,7 @@ class AlarmRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = AlarmSerializer
     lookup_field = 'id'
     lookup_url_kwarg = 'alarm_id'
-    permission_classes = permissions.IsAuthenticated
+    permission_classes = [permissions.IsAuthenticated]
     
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
