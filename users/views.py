@@ -116,7 +116,7 @@ def login_api_view(request):
     access_token = refresh_token.access_token
     serializer = UserSerializer(user)
     
-    response = Response(
+    return Response(
         status=status.HTTP_200_OK,
         data={
             "refresh_token": str(refresh_token),
@@ -124,25 +124,63 @@ def login_api_view(request):
             "user": serializer.data,
         }
     )
-    response.set_cookie('access_token', str(access_token), httponly=True, samesite=None, max_age=ACCESS_COOKIE_AGE)
-    response.set_cookie('refresh_token', str(refresh_token), httponly=True, samesite=None, max_age=REFRESH_COOKIE_AGE)
-    return response
+    
+# def login_api_view(request): 
+#     email = request.data.get('email')
+#     password = request.data.get('password')
+#     try:
+#         user = User.objects.get(email=email)
+#     except User.DoesNotExist:
+#         return Response({'error': '해당 이메일의 유저가 존재하지 않습니다. '}, status=status.HTTP_404_NOT_FOUND)
+    
+#     if not check_password(password, user.password):
+#         return Response({'error': '비밀번호가 맞지 않습니다. '}, status=status.HTTP_401_UNAUTHORIZED)
+    
+#     refresh_token = RefreshToken.for_user(user)
+#     access_token = refresh_token.access_token
+#     serializer = UserSerializer(user)
+    
+#     response = Response(
+#         status=status.HTTP_200_OK,
+#         data={
+#             "refresh_token": str(refresh_token),
+#             "access_token": str(access_token), 
+#             "user": serializer.data,
+#         }
+#     )
+#     response.set_cookie('access_token', str(access_token), httponly=True, samesite=None, max_age=ACCESS_COOKIE_AGE)
+#     response.set_cookie('refresh_token', str(refresh_token), httponly=True, samesite=None, max_age=REFRESH_COOKIE_AGE)
+#     return response
 
 # 자동 로그인 (Refresh Token 확인하여 Access Token 발급)
 @api_view(['POST'])
 def refresh_api_view(request):
-    refresh_token = request.COOKIES.get('refresh_token')
-    if refresh_token is None:
-        return Response({'error': 'Refresh Token을 찾을 수 없습니다. '}, status=status.HTTP_401_UNAUTHORIZED)
+    refresh_token = request.data.get('refresh_token')
     try:
         refresh = RefreshToken(refresh_token)
         new_access_token = refresh.access_token
-        response = Response({'refresh_token': str(refresh_token), 'access_token': str(new_access_token)}, status=status.HTTP_200_OK)
-        response.set_cookie('access_token', str(new_access_token), httponly=True, samesite=None,  max_age=ACCESS_COOKIE_AGE)
-        response.set_cookie('refresh_token', str(refresh), httponly=True, samesite=None,  max_age=REFRESH_COOKIE_AGE)
-        return response
+        return Response(
+            status=status.HTTP_200_OK,
+            data={
+                "refresh_token": str(refresh_token),
+                "access_token": str(new_access_token)
+            }
+        )
     except Exception as e:
-        return Response({'error': 'Refresh token이 올바르지 않습니다. '}, status=status.HTTP_401_UNAUTHORIZED)    
+        return Response({'error': 'Refresh token이 올바르지 않습니다. 다시 로그인 하세요. '}, status=status.HTTP_401_UNAUTHORIZED)
+    
+    # refresh_token = request.COOKIES.get('refresh_token')
+    # if refresh_token is None:
+    #     return Response({'error': 'Refresh Token을 찾을 수 없습니다. '}, status=status.HTTP_401_UNAUTHORIZED)
+    # try:
+    #     refresh = RefreshToken(refresh_token)
+    #     new_access_token = refresh.access_token
+    #     response = Response({'refresh_token': str(refresh_token), 'access_token': str(new_access_token)}, status=status.HTTP_200_OK)
+    #     response.set_cookie('access_token', str(new_access_token), httponly=True, samesite=None,  max_age=ACCESS_COOKIE_AGE)
+    #     response.set_cookie('refresh_token', str(refresh), httponly=True, samesite=None,  max_age=REFRESH_COOKIE_AGE)
+    #     return response
+    # except Exception as e:
+    #     return Response({'error': 'Refresh token이 올바르지 않습니다. '}, status=status.HTTP_401_UNAUTHORIZED)    
 
 # 로그아웃
 @api_view(['POST'])
