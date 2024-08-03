@@ -10,7 +10,7 @@ from .models import *
 from .serializers import *
 from notifications.models import Timer
 
-LOCAL_CLIENT_DOMAIN = "http://127.0.0.0.1:5500"
+LOCAL_CLIENT_DOMAIN = "http://127.0.0.1:5500"
 PUBLIC_CLIENT_DOMAIN = ""
 ACCESS_COOKIE_AGE = 15 * 60
 REFRESH_COOKIE_AGE = 3 * 24 * 60 * 60
