@@ -124,8 +124,8 @@ def login_api_view(request):
             "user": serializer.data,
         }
     )
-    response.set_cookie('access_token', str(access_token), samesite='Lax', httponly=True, max_age=ACCESS_COOKIE_AGE)
-    response.set_cookie('refresh_token', str(refresh_token), samesite='Lax', httponly=True, max_age=REFRESH_COOKIE_AGE)
+    response.set_cookie('access_token', str(access_token), samesite='Lax', domain='127.0.0.1',httponly=True, max_age=ACCESS_COOKIE_AGE)
+    response.set_cookie('refresh_token', str(refresh_token), samesite='Lax', domain='127.0.0.1',httponly=True, max_age=REFRESH_COOKIE_AGE)
     return response
 
 # 자동 로그인 (Refresh Token 확인하여 Access Token 발급)
