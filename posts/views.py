@@ -7,6 +7,7 @@ from rest_framework.generics import ListAPIView, CreateAPIView, RetrieveDestroyA
 from rest_framework.response import Response
 from posts.permissions import IsGet, IsOwner
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from django.db.models import Count
 
 
 # 게시물 전체 조회 및 카테고리 별 조회, 정렬 방식 선택 GET
@@ -26,7 +27,7 @@ class PostListAPIView(ListAPIView):
         # 정렬 기준 설정
         order_by = request.GET.get('order_by', 'created_at')
         if order_by == '좋아요순':
-            post_queryset = post_queryset.order_by('-likes')
+            post_queryset= Post.objects.annotate(likes_num=Count('likes')).order_by('-likes_num')
         else:
             post_queryset = post_queryset.order_by('-created_at')
         
@@ -113,7 +114,7 @@ class MyPostAPIView(ListAPIView):
         # 정렬 기준 설정
         order_by = request.GET.get('order_by', 'created_at')
         if order_by == '좋아요순':
-            post_queryset = post_queryset.order_by('-likes')
+            post_queryset= Post.objects.annotate(likes_num=Count('likes')).order_by('-likes_num')
         else:
             post_queryset = post_queryset.order_by('-created_at')
 
