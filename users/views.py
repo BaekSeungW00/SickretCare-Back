@@ -138,8 +138,8 @@ def refresh_api_view(request):
         refresh = RefreshToken(refresh_token)
         new_access_token = refresh.access_token
         response = Response({'refresh_token': str(refresh_token), 'access_token': str(new_access_token)}, status=status.HTTP_200_OK)
-        response.set_cookie('access_token', str(new_access_token), httponly=True, samesite='Lax', max_age=ACCESS_COOKIE_AGE)
-        response.set_cookie('refresh_token', str(refresh), httponly=True, samesite='Lax', max_age=REFRESH_COOKIE_AGE)
+        response.set_cookie('access_token', str(new_access_token), httponly=True, samesite='Lax', domain='127.0.0.1', max_age=ACCESS_COOKIE_AGE)
+        response.set_cookie('refresh_token', str(refresh), httponly=True, samesite='Lax', domain='127.0.0.1', max_age=REFRESH_COOKIE_AGE)
         return response
     except Exception as e:
         return Response({'error': 'Refresh token이 올바르지 않습니다. '}, status=status.HTTP_401_UNAUTHORIZED)    
