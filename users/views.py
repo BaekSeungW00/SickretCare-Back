@@ -160,9 +160,9 @@ def refresh_api_view(request):
     refresh_token = request.data.get('refresh_token')
     if not refresh_token:
         cookie_refresh_token = request.COOKIES.get('refresh_token')
-    if not cookie_refresh_token:
+        refresh_token = cookie_refresh_token
+    if not cookie_refresh_token or cookie_refresh_token is None:
         return Response({'error': 'Refresh token이 전달되지 않았습니다. '}, status=status.HTTP_401_UNAUTHORIZED)
-    refresh_token = cookie_refresh_token
     
     refresh = RefreshToken(refresh_token)
     
