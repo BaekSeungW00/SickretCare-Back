@@ -11,4 +11,5 @@ urlpatterns = [
     path('comment/delete/<int:comment_id>/', views.CommentDeleteAPIView.as_view(), name='comment-delete'),
     path('like/<int:post_id>/', views.post_like_api_view, name='post-like'),
     path('commodity/list/', views.CommoditySearchAPIView.as_view(), name='commodity-list'),
+    path('commodity/upload/', views.CommodityUploadAPIView.as_view(), name='commodity-upload'),
 ]
