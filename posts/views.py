@@ -20,18 +20,20 @@ class PostListAPIView(ListAPIView):
         # 카테고리 필터링
         category = request.GET.get('category', None)
         if category in ['치질', '변비', '과민성대장증후군']:
+            print(1)
             post_queryset = Post.objects.filter(category__name=category)
         else:
+            print(2)
             post_queryset = Post.objects.all()
 
         # 정렬 기준 설정
-        order_by = request.GET.get('order_by', 'created_at')
+        order_by = request.GET.get('order_by', None)
         if order_by == '좋아요순':
-            post_queryset= Post.objects.annotate(likes_num=Count('likes')).order_by('-likes_num')
+            filterd_post_queryset= post_queryset.annotate(likes_num=Count('likes')).order_by('-likes_num')
         else:
-            post_queryset = post_queryset.order_by('-created_at')
+            filterd_post_queryset = post_queryset.order_by('-created_at')
         
-        serializer = self.get_serializer(post_queryset, many=True)
+        serializer = self.get_serializer(filterd_post_queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
 
