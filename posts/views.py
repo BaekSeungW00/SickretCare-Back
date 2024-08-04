@@ -20,14 +20,12 @@ class PostListAPIView(ListAPIView):
         # 카테고리 필터링
         category = request.GET.get('category', None)
         if category in ['치질', '변비', '과민성대장증후군']:
-            print(1)
             post_queryset = Post.objects.filter(category__name=category)
         else:
-            print(2)
             post_queryset = Post.objects.all()
 
         # 정렬 기준 설정
-        order_by = request.GET.get('order_by', None)
+        order_by = request.GET.get('order_by', 'created_at')
         if order_by == '좋아요순':
             filterd_post_queryset= post_queryset.annotate(likes_num=Count('likes')).order_by('-likes_num')
         else:
@@ -47,7 +45,7 @@ class PostRetrieveDeleteAPIView(RetrieveDestroyAPIView):
     def retrieve(self, request, *args, **kwargs):
         instance = get_object_or_404(Post, id=kwargs.get('id'))
         serializer = self.get_serializer(instance)
-        comments = Comment.objects.filter(post=instance)
+        comments = Comment.objects.filter(post=instance).order_by('created_at')
         comments_serializer = CommentSerializer(comments, many=True)
         data = {
             'post': serializer.data,
@@ -116,7 +114,7 @@ class MyPostAPIView(ListAPIView):
         # 정렬 기준 설정
         order_by = request.GET.get('order_by', 'created_at')
         if order_by == '좋아요순':
-            post_queryset= Post.objects.annotate(likes_num=Count('likes')).order_by('-likes_num')
+            post_queryset= post_queryset.annotate(likes_num=Count('likes')).order_by('-likes_num')
         else:
             post_queryset = post_queryset.order_by('-created_at')
 
