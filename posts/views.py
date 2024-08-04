@@ -27,11 +27,11 @@ class PostListAPIView(ListAPIView):
         # 정렬 기준 설정
         order_by = request.GET.get('order_by', 'created_at')
         if order_by == '좋아요순':
-            post_queryset= Post.objects.annotate(likes_num=Count('likes')).order_by('-likes_num')
+            filterd_post_queryset= post_queryset.annotate(likes_num=Count('likes')).order_by('-likes_num')
         else:
-            post_queryset = post_queryset.order_by('-created_at')
+            filterd_post_queryset = post_queryset.order_by('-created_at')
         
-        serializer = self.get_serializer(post_queryset, many=True)
+        serializer = self.get_serializer(filterd_post_queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
 
@@ -45,7 +45,7 @@ class PostRetrieveDeleteAPIView(RetrieveDestroyAPIView):
     def retrieve(self, request, *args, **kwargs):
         instance = get_object_or_404(Post, id=kwargs.get('id'))
         serializer = self.get_serializer(instance)
-        comments = Comment.objects.filter(post=instance)
+        comments = Comment.objects.filter(post=instance).order_by('created_at')
         comments_serializer = CommentSerializer(comments, many=True)
         data = {
             'post': serializer.data,
@@ -114,7 +114,7 @@ class MyPostAPIView(ListAPIView):
         # 정렬 기준 설정
         order_by = request.GET.get('order_by', 'created_at')
         if order_by == '좋아요순':
-            post_queryset= Post.objects.annotate(likes_num=Count('likes')).order_by('-likes_num')
+            post_queryset= post_queryset.annotate(likes_num=Count('likes')).order_by('-likes_num')
         else:
             post_queryset = post_queryset.order_by('-created_at')
 
