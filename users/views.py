@@ -35,7 +35,7 @@ class UserCreateAPIView(generics.CreateAPIView):
             'nickname': request.data.get('nickname')
         }
         serializer = self.get_serializer(data=data)
-        if serializer.is_valid():
+        if serializer.is_valid(raise_exception=True):
             self.perform_create(serializer)
             headers = self.get_success_headers(serializer.data)
             return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
@@ -123,6 +123,7 @@ def login_api_view(request):
             "user": serializer.data,
         }
     )
+    
 
 # 리프레시
 @api_view(['POST'])
@@ -142,6 +143,7 @@ def refresh_api_view(request):
     except User.DoesNotExist:
         return Response({'error': '존재하지 않는 사용자의 Refresh token 입니다. '}, status=status.HTTP_401_UNAUTHORIZED)
 
+    
     new_access_token = refresh.access_token
     return Response(
         status=status.HTTP_200_OK,
@@ -158,7 +160,7 @@ def get_user_id_from_refresh_token(token):
     algorithm = 'HS256'
     payload = jwt.decode(token, secret_key, algorithms=[algorithm])
     user_id = payload.get('user_id')
-    return user_id  
+    return user_id   
 
 # 로그아웃
 @api_view(['POST'])
