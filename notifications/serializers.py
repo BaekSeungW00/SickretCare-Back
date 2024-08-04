@@ -10,12 +10,17 @@ class TimerSerializer(serializers.ModelSerializer):
         }
         
 class AlarmSerializer(serializers.ModelSerializer):
+    hm = serializers.SerializerMethodField()
     class Meta:
         model = Alarm
         fields = '__all__'
         extra_kwargs = {
-            'user': {'required': False}
+            'user': {'required': False},
+            'hm': {'read_only': True}
         }
+    
+    def get_hm(self, obj):
+        return str(obj.time)[:5]
         
 class TimerPushSerializer(serializers.ModelSerializer):
     class Meta:
