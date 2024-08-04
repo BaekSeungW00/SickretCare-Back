@@ -123,35 +123,8 @@ def login_api_view(request):
             "user": serializer.data,
         }
     )
-    
-# def login_api_view(request): 
-#     email = request.data.get('email')
-#     password = request.data.get('password')
-#     try:
-#         user = User.objects.get(email=email)
-#     except User.DoesNotExist:
-#         return Response({'error': '해당 이메일의 유저가 존재하지 않습니다. '}, status=status.HTTP_404_NOT_FOUND)
-    
-#     if not check_password(password, user.password):
-#         return Response({'error': '비밀번호가 맞지 않습니다. '}, status=status.HTTP_401_UNAUTHORIZED)
-    
-#     refresh_token = RefreshToken.for_user(user)
-#     access_token = refresh_token.access_token
-#     serializer = UserSerializer(user)
-    
-#     response = Response(
-#         status=status.HTTP_200_OK,
-#         data={
-#             "refresh_token": str(refresh_token),
-#             "access_token": str(access_token), 
-#             "user": serializer.data,
-#         }
-#     )
-#     response.set_cookie('access_token', str(access_token), httponly=True, samesite=None, max_age=ACCESS_COOKIE_AGE)
-#     response.set_cookie('refresh_token', str(refresh_token), httponly=True, samesite=None, max_age=REFRESH_COOKIE_AGE)
-#     return response
 
-# 자동 로그인 (Refresh Token 확인하여 Access Token 발급)
+# 리프레시
 @api_view(['POST'])
 def refresh_api_view(request):
     refresh_token = request.data.get('refresh_token')
@@ -169,7 +142,6 @@ def refresh_api_view(request):
     except User.DoesNotExist:
         return Response({'error': '존재하지 않는 사용자의 Refresh token 입니다. '}, status=status.HTTP_401_UNAUTHORIZED)
 
-    
     new_access_token = refresh.access_token
     return Response(
         status=status.HTTP_200_OK,
@@ -186,20 +158,7 @@ def get_user_id_from_refresh_token(token):
     algorithm = 'HS256'
     payload = jwt.decode(token, secret_key, algorithms=[algorithm])
     user_id = payload.get('user_id')
-    return user_id
-
-    # refresh_token = request.COOKIES.get('refresh_token')
-    # if refresh_token is None:
-    #     return Response({'error': 'Refresh Token을 찾을 수 없습니다. '}, status=status.HTTP_401_UNAUTHORIZED)
-    # try:
-    #     refresh = RefreshToken(refresh_token)
-    #     new_access_token = refresh.access_token
-    #     response = Response({'refresh_token': str(refresh_token), 'access_token': str(new_access_token)}, status=status.HTTP_200_OK)
-    #     response.set_cookie('access_token', str(new_access_token), httponly=True, samesite=None,  max_age=ACCESS_COOKIE_AGE)
-    #     response.set_cookie('refresh_token', str(refresh), httponly=True, samesite=None,  max_age=REFRESH_COOKIE_AGE)
-    #     return response
-    # except Exception as e:
-    #     return Response({'error': 'Refresh token이 올바르지 않습니다. '}, status=status.HTTP_401_UNAUTHORIZED)    
+    return user_id  
 
 # 로그아웃
 @api_view(['POST'])
@@ -227,7 +186,7 @@ def reset_pw_api_view(request):
     subject = "SickretCare 임시 비밀번호 알림"
     message = f'임시 비밀번호는 <{code}> 입니다. 로그인 후 마이페이지에서 비밀번호를 수정해주세요. '
     from_email = EMAIL_HOST_USER
-    recipient_list = ['ph1losophe@naver.com']
+    recipient_list = [email]
 
     try:
         send_mail(
