@@ -19,7 +19,7 @@ def check_and_send_timer_pushes():
             send_timer_push(timer_push)
             timer_push.delete()
 
-@shared_task        
+@shared_task 
 def check_and_send_alarm_pushes():
     now = timezone.now()
     alarm_pushes = AlarmPush.objects.all()
@@ -39,11 +39,9 @@ def check_and_send_alarm_pushes():
 def send_timer_push(push):
     fcm_token=push.timer.user.fcm_token
     message = messaging.Message(
-        notification = messaging.Notification(
-            title="이제 일어날 시간이에요",
-            body="Sickret Care Timer 알림"
-        ),
         data = {
+            "title": "Sickret Care 타이머 알림",
+            "body": "지정한 시간이 다 되었습니다!",
             "url": "" # 메인 페이지 url
         },
         token=fcm_token
@@ -55,11 +53,9 @@ def send_timer_push(push):
 def send_alarm_push(push):
     fcm_token=push.alarm.user.fcm_token
     message = messaging.Message(
-        notification = messaging.Notification(
-            title=push.title,
-            body="Sickret Care Alarm 알림"
-        ),
         data = {
+            "title": "Sickret Care Alarm 알림",
+            "body": push.title,
             "url": "" # 메인 페이지 url
         },
         token=fcm_token
