@@ -113,13 +113,6 @@ CORS_ALLOW_CREDENTIALS = True
 
 CORS_ORIGIN_ALLOW_ALL = True
 
-#CORS_ALLOWED_ORIGINS = [
-#    "http://localhost:8000",
-#    "http://localhost:5500",
-#    "http://127.0.0.1:8000",
-#    "http://127.0.0.1:5500",
-#]
-
 ROOT_URLCONF = 'config.urls'
 
 TEMPLATES = [
@@ -185,8 +178,8 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 
 # Redis settings
-CELERY_BROKER_URL = 'redis://3.36.216.93:6379'
-CELERY_RESULT_BACKEND = 'redis://3.36.216.93:6379'
+CELERY_BROKER_URL = 'redis://127.0.0.1:6379'
+CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379'
 
 CELERY_BEAT_SCHEDULE = {
     'check-and-send-timer-pushes-every-minute': {
