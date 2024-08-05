@@ -71,8 +71,9 @@ def user_retrieve_update_destroy_api_view(request):
                 return Response({'error': '비밀번호가 일치하지 않음. '}, status=status.HTTP_400_BAD_REQUEST)
             else:
                 user.set_password(new_password)
-        else:
+        elif (password is None) or (new_password is None):
             return Response({'error': '현재 비밀번호와 새로운 비밀번호를 모두 입력하세요. '}, status=status.HTTP_400_BAD_REQUEST)
+            
         
         # 닉네임 변경
         if nickname is not None:
