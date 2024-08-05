@@ -61,6 +61,7 @@ def user_retrieve_update_destroy_api_view(request):
     # 회원 정보 수정
     elif request.method == 'PUT':
         nickname = request.data.get('nickname')
+        fcm_token = request.data.get('fcm_token')
         password = request.data.get('password')
         new_password = request.data.get('new_password')
         
@@ -76,8 +77,11 @@ def user_retrieve_update_destroy_api_view(request):
         # 닉네임 변경
         if nickname is not None:
             user.nickname = nickname
-            user.save()
+        
+        if fcm_token is not None:
+            user.fcm_token = fcm_token
             
+        user.save()
         serializer = UserSerializer(user)
         return Response(serializer.data)
     
