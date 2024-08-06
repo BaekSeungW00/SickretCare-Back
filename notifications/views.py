@@ -82,6 +82,20 @@ class AlarmRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
+        alarm = instance
+        AlarmPush.objects.filter(alarm=alarm).delete()
+        
+        current_time = timezone.now()
+        current_hms = time(hour=current_time.hour, minute=current_time.minute, second=current_time.second)
+        
+        if alarm.time < current_hms:
+            push_time = datetime.combine(current_time.date(), alarm.time)
+        else:
+            push_time = datetime.combine(current_time.date() + timedelta(days=1), alarm.time)
+            
+        alarm_push = AlarmPush.objects.create(title=alarm.title, time=push_time, alarm=alarm)
+        alarm_push.save()
+        
         org_time = str(request.data.get('time'))
         hours = int(org_time[:2])
         minutes = int(org_time[2:])
