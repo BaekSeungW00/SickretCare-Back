@@ -16,20 +16,22 @@ def check_and_send_timer_pushes():
     timer_pushes = TimerPush.objects.all()
     for timer_push in timer_pushes:
         if timer_push.created_at + timedelta(minutes=timer_push.timer.interval) <= now:
-            if timer_push.created_at + timedelta(minutes=timer_push.timer.interval) <= now - timedelta(minutes=3):
+            if timer_push.created_at + timedelta(minutes=timer_push.timer.interval) <= now - timedelta(minutes=5):
                 timer_push.delete()
-            send_timer_push(timer_push)
-            timer_push.delete()
+            else:
+                send_timer_push(timer_push)
+                timer_push.delete()
 
-@shared_task 
+@shared_task
 def check_and_send_alarm_pushes():
     now = timezone.now()
     alarm_pushes = AlarmPush.objects.all()
     for alarm_push in alarm_pushes:
         if alarm_push.time <= now:
-            if alarm_push.time <= now - timedelta(minutes=3):
+            if alarm_push.time <= now - timedelta(minutes=5):
                 alarm_push.delete()
-            send_alarm_push(alarm_push)
+            else:
+                send_alarm_push(alarm_push)
             
             next_alarm_push = AlarmPush.objects.create(
                 title=alarm_push.title, 
@@ -45,8 +47,7 @@ def send_timer_push(push):
     message = messaging.Message(
         data = {
             "title": "Sickret Care 타이머 알림",
-            "body": "지정한 시간이 다 되었습니다!",
-            "url": "" # 메인 페이지 url
+            "body": "지정한 시간이 다 되었습니다!"
         },
         token=fcm_token
     )
@@ -59,8 +60,7 @@ def send_alarm_push(push):
     message = messaging.Message(
         data = {
             "title": "Sickret Care Alarm 알림",
-            "body": push.title,
-            "url": "" # 메인 페이지 url
+            "body": push.title
         },
         token=fcm_token
     )
