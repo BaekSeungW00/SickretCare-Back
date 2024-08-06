@@ -44,26 +44,28 @@ def check_and_send_alarm_pushes():
   
 def send_timer_push(push):
     fcm_token=push.timer.user.fcm_token
-    message = messaging.Message(
-        data = {
-            "title": "Sickret Care 타이머 알림",
-            "body": "지정한 시간이 다 되었습니다!"
-        },
-        token=fcm_token
-    )
-    # 푸시 알림 메시지 전송
-    response = messaging.send(message)
-    print('Successfully sent push message:', response)
+    if fcm_token is not None:
+        message = messaging.Message(
+            data = {
+                "title": "Sickret Care 타이머 알림",
+                "body": "지정한 시간이 다 되었습니다!"
+            },
+            token=fcm_token
+        )
+        # 푸시 알림 메시지 전송
+        response = messaging.send(message)
+        print('Successfully sent push message:', response)
 
 def send_alarm_push(push):
     fcm_token=push.alarm.user.fcm_token
-    message = messaging.Message(
-        data = {
-            "title": "Sickret Care Alarm 알림",
-            "body": push.title
-        },
-        token=fcm_token
-    )
-    # 푸시 알림 메시지 전송
-    response = messaging.send(message)
-    print('Successfully sent alarm message:', response)
+    if fcm_token is not None:
+        message = messaging.Message(
+            data = {
+                "title": "Sickret Care Alarm 알림",
+                "body": push.title
+            },
+            token=fcm_token
+        )
+        # 푸시 알림 메시지 전송
+        response = messaging.send(message)
+        print('Successfully sent alarm message:', response)
