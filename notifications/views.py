@@ -61,9 +61,9 @@ class AlarmListCreateAPIView(generics.ListCreateAPIView):
         alarm = Alarm.objects.get(id=serializer.data.get('id'))
         
         current_time = timezone.now()
-        current_hms = time(hour=current_time.hour, minute=current_time.minute, second=current_time.second)
+        current_hms = current_time.time()
         
-        if alarm.time < current_hms:
+        if alarm.time > current_hms:
             push_time = datetime.combine(current_time.date(), alarm.time)
         else:
             push_time = datetime.combine(current_time.date() + timedelta(days=1), alarm.time)
@@ -82,6 +82,10 @@ class AlarmRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
+        alarm = instance
+        old_alarm_pushes = AlarmPush.objects.filter(alarm=alarm)
+        old_alarm_pushes.delete()
+        
         org_time = str(request.data.get('time'))
         hours = int(org_time[:2])
         minutes = int(org_time[2:])
@@ -93,6 +97,17 @@ class AlarmRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
         serializer = self.get_serializer(instance, data=data, partial=partial)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
+        
+        current_time = timezone.now()
+        current_hms = time(hour=current_time.hour, minute=current_time.minute, second=current_time.second)
+        
+        if prcd_time > current_hms:
+            push_time = datetime.combine(current_time.date(), prcd_time)
+        else:
+            push_time = datetime.combine(current_time.date() + timedelta(days=1), prcd_time)
+            
+        alarm_push = AlarmPush.objects.create(title=request.data.get('title'), time=push_time, alarm=alarm)
+        alarm_push.save()
 
         if getattr(instance, '_prefetched_objects_cache', None):
             instance._prefetched_objects_cache = {}
